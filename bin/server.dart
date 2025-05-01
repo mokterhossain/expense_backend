@@ -34,4 +34,5 @@ void main(List<String> args) async {
   final port = int.parse(Platform.environment['PORT'] ?? '8088');
   final httpServer = await serve(handler, InternetAddress.anyIPv4, port);
   print('Server running on ${httpServer.address.host}:${httpServer.port}');
+  print('Test');
 }
