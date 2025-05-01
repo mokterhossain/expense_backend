@@ -2,7 +2,7 @@ name: Deploy Backend
 
 on:
   push:
-    branches: [master]
+    branches: [production]
     paths:
       - 'backend/**'  # Only trigger when backend code changes
 
@@ -27,6 +27,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ~/expense_backend
-            git pull origin master
+            git pull origin production
             dart pub get
             sudo systemctl restart expense.service
