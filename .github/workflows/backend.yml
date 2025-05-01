@@ -1,0 +1,32 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'backend/**'  # Only trigger when backend code changes
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/expense_backend
+            git pull origin master
+            dart pub get
+            sudo systemctl restart expense.service
