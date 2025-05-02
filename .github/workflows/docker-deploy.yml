@@ -1,0 +1,53 @@
+name: Docker Build & Deploy
+
+on:
+  push:
+    branches: [production]
+    paths:
+      - '**'  # Trigger on any file change
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t expense-backend:latest ./backend
+          docker save -o backend-image.tar expense-backend:latest
+
+      - name: Transfer image to EC2
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "backend-image.tar"
+          target: "/home/ubuntu"
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            #!/bin/bash
+            docker load -i backend-image.tar
+            docker stop backend || true
+            docker rm backend || true
+            docker run -d \
+              --name backend \
+              --restart always \
+              -p 8088:8088 \
+              -e DB_HOST=${{ secrets.DB_HOST }} \
+              -e DB_PORT=${{ secrets.DB_PORT }} \
+              -e DB_NAME=${{ secrets.DB_NAME }} \
+              -e DB_USER=${{ secrets.DB_USER }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              expense-backend:latest

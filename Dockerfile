@@ -1,21 +1,17 @@
-# Use latest stable channel SDK.
-FROM dart:stable AS build
-
-# Resolve app dependencies.
+# Build stage
+FROM dart:stable AS builder
 WORKDIR /app
-COPY pubspec.* ./
+COPY pubspec.* .
 RUN dart pub get
-
-# Copy app source code (except anything in .dockerignore) and AOT compile app.
 COPY . .
-RUN dart compile exe bin/server.dart -o bin/server
+RUN dart compile exe bin/server.dart -o server
 
-# Build minimal serving image from AOT-compiled `/server`
-# and the pre-built AOT-runtime in the `/runtime/` directory of the base image.
-FROM scratch
-COPY --from=build /runtime/ /
-COPY --from=build /app/bin/server /app/bin/
+# Runtime stage
+FROM alpine:latest
+RUN apk add --no-cache tzdata
+WORKDIR /app
+COPY --from=builder /app/server /app/server
+COPY --from=builder /app/.env /app/.env
 
-# Start server.
-EXPOSE 8080
-CMD ["/app/bin/server"]
+EXPOSE 8088
+CMD ["./server"]
