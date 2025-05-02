@@ -31,7 +31,7 @@ void main(List<String> args) async {
 
       .addHandler(expenseService.router);
 
-  final port = int.parse(Platform.environment['PORT'] ?? '8088');
+  final port = int.parse(Platform.environment['PORT'] ?? '8089');
   final httpServer = await serve(handler, InternetAddress.anyIPv4, port);
   print('Server running on ${httpServer.address.host}:${httpServer.port}');
   print('Test');
