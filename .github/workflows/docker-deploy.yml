@@ -50,7 +50,7 @@ jobs:
             docker run -d \
               --name backend \
               --restart always \
-              -p 8088:8088 \
+              -p 8089:8089 \
               -e DB_HOST=${{ secrets.DB_HOST }} \
               -e DB_PORT=${{ secrets.DB_PORT }} \
               -e DB_NAME=${{ secrets.DB_NAME }} \
