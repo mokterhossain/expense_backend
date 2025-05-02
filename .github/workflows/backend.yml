@@ -4,7 +4,7 @@ on:
   push:
     branches: [production]
     paths:
-      - 'backend/**'  # Only trigger when backend code changes
+      - '**'  # Only trigger when backend code changes
 
 jobs:
   deploy:
