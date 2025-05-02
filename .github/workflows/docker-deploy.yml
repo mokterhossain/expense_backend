@@ -18,7 +18,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t expense-backend:latest ./backend
+          docker build -t expense-backend:latest .
           docker save -o backend-image.tar expense-backend:latest
 
       - name: Transfer image to EC2
